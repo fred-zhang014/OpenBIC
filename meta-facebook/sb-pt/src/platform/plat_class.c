@@ -262,7 +262,7 @@ void pal_show_board_types(const struct shell *shell)
 							  "not supported");
 
 	shell_print(shell, "* VR_TYPE:       (0x%02X)%s", vr_module,
-		    (vr_module == VR_MODULE_MPS) ? "VR_MPS_MP2971_MP29816C" :
+		    (vr_module == VR_MODULE_MPS) ? "VR_MPS_MP2971_MP29526" :
 		    (vr_module == VR_MODULE_RNS) ? "VR_RNS_RAA229140_RAA228249" :
 						   "not supported");
 

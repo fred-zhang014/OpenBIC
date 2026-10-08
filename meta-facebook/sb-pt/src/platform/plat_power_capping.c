@@ -17,7 +17,7 @@
 #include <kernel.h>
 #include <logging/log.h>
 #include "raa228249.h"
-#include "mp29816a.h"
+#include "mp29526.h"
 #include "pldm_sensor.h"
 #include "plat_adc.h"
 #include "plat_class.h"
@@ -96,8 +96,9 @@ void power_capping_syn_vr_oc_warn_limit()
 		uint16_t voltage_value = 0;
 		float float_value = 0;
 		if (get_vr_module() == VR_MODULE_MPS) {
-			if (mp29816a_get_iout_oc_warn_limit(cfg, &value)) {
-				if (mp29816a_get_vout_command(cfg, 0, &voltage_value)) {
+			if (mp29526_get_iout_oc_warn_limit(cfg, pre_proc_args->vr_page, &value)) {
+				if (mp29526_get_vout_command(cfg, pre_proc_args->vr_page,
+							     &voltage_value)) {
 					float_value = voltage_value / 1000.0;
 					power_capping_info.current_threshold[i] = value;
 					power_capping_info.threshold[i][CAPPING_LV_IDX_LV1] =
@@ -178,13 +179,13 @@ bool set_power_capping_vr_oc_warn_limit(uint8_t vr_idx, uint16_t value)
 	if (get_vr_module() == VR_MODULE_MPS) {
 		const uint16_t current_val = value;
 		uint16_t check_cur_val = 0;
-		ret = mp29816a_set_iout_oc_warn_limit(cfg, current_val);
+		ret = mp29526_set_iout_oc_warn_limit(cfg, pre_proc_args->vr_page, current_val);
 		if (ret) {
-			mp29816a_get_iout_oc_warn_limit(cfg, &check_cur_val);
+			mp29526_get_iout_oc_warn_limit(cfg, pre_proc_args->vr_page, &check_cur_val);
 			power_capping_info.current_threshold[vr_idx] = check_cur_val;
 			// update lv1 threshold
 			uint16_t voltage_value = 0;
-			if (mp29816a_get_vout_command(cfg, 0, &voltage_value)) {
+			if (mp29526_get_vout_command(cfg, pre_proc_args->vr_page, &voltage_value)) {
 				float float_voltage_value = voltage_value / 1000.0;
 				power_capping_info.threshold[vr_idx][CAPPING_LV_IDX_LV1] =
 					check_cur_val * float_voltage_value;

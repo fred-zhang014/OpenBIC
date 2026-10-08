@@ -30,7 +30,7 @@
 
 LOG_MODULE_REGISTER(plat_pldm_sensor);
 
-static bool plat_sensor_polling_enable_flag = true;
+static bool plat_sensor_polling_enable_flag = false;
 static bool plat_sensor_ubc_polling_enable_flag = true;
 static bool plat_sensor_temp_polling_enable_flag = true;
 static bool plat_sensor_vr_polling_enable_flag = true;
@@ -1003,7 +1003,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA0_VDD_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA0_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1075,7 +1075,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA0_VDD_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA0_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1147,7 +1147,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA0_VDD_INPUT_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA0_VDD_ADDR,
 			.offset = PMBUS_READ_VIN,
@@ -1219,7 +1219,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA1_VDD_CURR_A,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA1_VDD_ADDR,
 			.offset = PMBUS_READ_IOUT,
@@ -1291,7 +1291,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA1_VDD_TEMP_C,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA1_VDD_ADDR,
 			.offset = PMBUS_READ_TEMPERATURE_1,
@@ -1363,7 +1363,7 @@ pldm_sensor_info plat_pldm_sensor_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA1_VDD_INPUT_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA1_VDD_ADDR,
 			.offset = PMBUS_READ_VIN,
@@ -8278,7 +8278,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA0_VDD_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA0_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -8351,7 +8351,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA0_VDD_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA0_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,
@@ -8424,7 +8424,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA1_VDD_VOLT_V,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA1_VDD_ADDR,
 			.offset = PMBUS_READ_VOUT,
@@ -8497,7 +8497,7 @@ pldm_sensor_info plat_pldm_sensor_quick_vr_table[] = {
 		.update_time = 0,
 		{
 			.num = SENSOR_NUM_ASIC_P0V85_MEDHA1_VDD_PWR_W,
-			.type = sensor_dev_mp29816a,
+			.type = sensor_dev_mp29526,
 			.port = I2C_BUS2,
 			.target_addr = ASIC_P0V85_MEDHA1_VDD_ADDR,
 			.offset = PMBUS_READ_POUT,

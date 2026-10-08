@@ -26,7 +26,7 @@
 #include "plat_class.h"
 #include "plat_hook.h"
 #include "mp2971.h"
-#include "mp29816a.h"
+#include "mp29526.h"
 #include "raa228249.h"
 #include "drivers/i2c_npcm4xx.h"
 #include "util_spi.h"
@@ -867,9 +867,9 @@ static uint8_t plat_pldm_vr_update(void *fw_update_param)
 	sensor_cfg *cfg = get_sensor_cfg_by_sensor_id(sensor_id);
 	CHECK_NULL_ARG_WITH_RETURN(cfg, 1);
 
-	if (cfg->type == sensor_dev_mp29816a) {
-		if (strncmp(p->comp_version_str, KEYWORD_VR_MP29816A,
-			    ARRAY_SIZE(KEYWORD_VR_MP29816A) - 1)) {
+	if (cfg->type == sensor_dev_mp29526) {
+		if (strncmp(p->comp_version_str, KEYWORD_VR_MP29526,
+			    ARRAY_SIZE(KEYWORD_VR_MP29526) - 1)) {
 			LOG_ERR("Wrong VR module stop FW update!");
 			goto exit;
 		}
@@ -956,9 +956,9 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 			goto err;
 		}
 		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_fw_version(cfg->port, cfg->target_addr, &version)) {
-			LOG_ERR("The VR MPS29816a version reading failed");
+	case sensor_dev_mp29526:
+		if (!mp29526_get_fw_version(cfg->port, cfg->target_addr, &version)) {
+			LOG_ERR("The VR MPS29526 version reading failed");
 			goto err;
 		}
 		break;
@@ -978,9 +978,10 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 		goto err;
 	}
 
-	if (cfg->type == sensor_dev_mp2891 || cfg->type == sensor_dev_mp29816a)
+	if (cfg->type == sensor_dev_mp2891)
 		version = sys_cpu_to_be16(version);
-	else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971)
+	else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971 ||
+		 cfg->type == sensor_dev_mp29526)
 		version = sys_cpu_to_be32(version);
 	else
 		LOG_ERR("Unsupport VR type(%d)", cfg->type);
@@ -1005,10 +1006,11 @@ static bool get_vr_fw_version(void *info_p, uint8_t *buf, uint8_t *len)
 	buf_p += strlen(vr_name_p);
 	*len += strlen(vr_name_p);
 
-	if (cfg->type == sensor_dev_mp2891 || cfg->type == sensor_dev_mp29816a) {
+	if (cfg->type == sensor_dev_mp2891) {
 		*len += bin2hex((uint8_t *)&version, 2, buf_p, 4);
 		buf_p += 4;
-	} else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971) {
+	} else if (cfg->type == sensor_dev_raa228249 || cfg->type == sensor_dev_mp2971 ||
+		   cfg->type == sensor_dev_mp29526) {
 		*len += bin2hex((uint8_t *)&version, 4, buf_p, 8);
 		buf_p += 8;
 	} else {

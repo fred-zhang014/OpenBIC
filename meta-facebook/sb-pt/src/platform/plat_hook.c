@@ -534,9 +534,9 @@ bool plat_get_vr_status(uint8_t rail, uint8_t vr_status_rail, uint16_t *vr_statu
 			goto err;
 		}
 		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id, vr_status)) {
-			LOG_ERR("The VR MPS29816a vr status reading failed");
+	case sensor_dev_mp29526:
+		if (!mp29526_get_vr_status(cfg, pre_proc_args->vr_page, pmbus_reg_id, vr_status)) {
+			LOG_ERR("The VR MPS29526 vr status reading failed");
 			goto err;
 		}
 		break;
@@ -589,9 +589,9 @@ bool plat_clear_vr_status(uint8_t rail)
 			goto err;
 		}
 		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_clear_vr_status(cfg, pre_proc_args->vr_page)) {
-			LOG_ERR("The VR MPS29816a vr status clear failed");
+	case sensor_dev_mp29526:
+		if (!mp29526_clear_vr_status(cfg, pre_proc_args->vr_page)) {
+			LOG_ERR("The VR MPS29526 vr status clear failed");
 			goto err;
 		}
 		break;
@@ -646,9 +646,10 @@ bool plat_get_vout_command(uint8_t rail, uint16_t *millivolt)
 			goto err;
 		}
 		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_vout_command(cfg, pre_proc_args->vr_page, millivolt)) {
-			LOG_ERR("The VR MPS29816a vout reading failed");
+	case sensor_dev_mp29526:
+		// pre_proc_args is indexed by platform rail here, use the sensor's own page
+		if (!mp29526_get_vout_command(cfg, get_vr_page(rail), millivolt)) {
+			LOG_ERR("The VR MPS29526 vout reading failed");
 			goto err;
 		}
 		break;
@@ -707,9 +708,9 @@ bool plat_set_vout_command(uint8_t rail, uint16_t *millivolt, bool is_perm)
 			goto err;
 		}
 		break;
-	case sensor_dev_mp29816a:
-		if (!mp29816a_set_vout_command(cfg, page, millivolt)) {
-			LOG_ERR("The VR MPS29816a vout setting failed");
+	case sensor_dev_mp29526:
+		if (!mp29526_set_vout_command(cfg, page, millivolt)) {
+			LOG_ERR("The VR MPS29526 vout setting failed");
 			goto err;
 		}
 		break;
@@ -1503,7 +1504,7 @@ int get_vr_page(uint8_t rail)
 	return pre_sensor_read_args->vr_page;
 }
 
-int set_vr_mp29816a_reg(uint8_t rail, uint16_t *set_value, uint8_t set_reg)
+int set_vr_mp29526_reg(uint8_t rail, uint16_t *set_value, uint8_t set_reg)
 {
 	CHECK_NULL_ARG_WITH_RETURN(set_value, false);
 
@@ -1515,6 +1516,11 @@ int set_vr_mp29816a_reg(uint8_t rail, uint16_t *set_value, uint8_t set_reg)
 		return -1;
 	}
 
+	const vr_pre_proc_arg *pre_proc_args = cfg->pre_sensor_read_args;
+	CHECK_NULL_ARG_WITH_RETURN(pre_proc_args, -1);
+	// MP29526 selects the PMBus page from the rail index, not the platform rail enum
+	uint8_t page = pre_proc_args->vr_page;
+
 	if (cfg->pre_sensor_read_hook) {
 		if (!cfg->pre_sensor_read_hook(cfg, cfg->pre_sensor_read_args)) {
 			LOG_ERR("sensor id: 0x%x pre-read fail", sensor_id);
@@ -1524,37 +1530,37 @@ int set_vr_mp29816a_reg(uint8_t rail, uint16_t *set_value, uint8_t set_reg)
 
 	switch (set_reg) {
 	case UVP_THRESHOLD:
-		if (!mp29816a_set_uvp_threshold(cfg, set_value)) {
-			LOG_ERR("The VR mp29816a uvp threshold setting failed");
+		if (!mp29526_set_uvp_threshold(cfg, page, set_value)) {
+			LOG_ERR("The VR mp29526 uvp threshold setting failed");
 			goto err;
 		}
 		break;
 	case TOTAL_OCP:
-		if (!mp29816a_set_total_ocp(cfg, set_value)) {
-			LOG_ERR("The VR mp29816a total ocp setting failed");
+		if (!mp29526_set_total_ocp(cfg, page, set_value)) {
+			LOG_ERR("The VR mp29526 total ocp setting failed");
 			goto err;
 		}
 		break;
 	case OVP_2_ACTION:
-		if (!mp29816a_set_ovp_2_action(cfg, set_value)) {
-			LOG_ERR("The VR mp29816a ovp 2 action setting failed");
+		if (!mp29526_set_ovp_2_action(cfg, page, set_value)) {
+			LOG_ERR("The VR mp29526 ovp 2 action setting failed");
 			goto err;
 		}
 		break;
 	case OVP_1:
-		if (!mp29816a_set_ovp_1(cfg, set_value)) {
-			LOG_ERR("The VR mp29816a ovp 1 setting failed");
+		if (!mp29526_set_ovp_1(cfg, page, set_value)) {
+			LOG_ERR("The VR mp29526 ovp 1 setting failed");
 			goto err;
 		}
 		break;
 	case VOUT_MAX:
-		if (!mp29816a_set_vout_max(cfg, rail, set_value)) {
-			LOG_ERR("The VR mp29816a vout max setting failed");
+		if (!mp29526_set_vout_max(cfg, page, set_value)) {
+			LOG_ERR("The VR mp29526 vout max setting failed");
 			goto err;
 		}
 		break;
 	default:
-		LOG_ERR("Unsupport VR mp29816a setting reg (0x%x)", set_reg);
+		LOG_ERR("Unsupport VR mp29526 setting reg (0x%x)", set_reg);
 		goto err;
 	}
 	ret = 0;
@@ -1567,7 +1573,7 @@ err:
 	return ret;
 }
 
-int get_vr_mp29816a_reg(uint8_t rail, uint16_t *get_data, uint8_t get_reg)
+int get_vr_mp29526_reg(uint8_t rail, uint16_t *get_data, uint8_t get_reg)
 {
 	CHECK_NULL_ARG_WITH_RETURN(get_data, false);
 
@@ -1578,6 +1584,11 @@ int get_vr_mp29816a_reg(uint8_t rail, uint16_t *get_data, uint8_t get_reg)
 		LOG_ERR("Failed to get sensor config for sensor 0x%x", sensor_id);
 		return false;
 	}
+	const vr_pre_proc_arg *pre_proc_args = cfg->pre_sensor_read_args;
+	CHECK_NULL_ARG_WITH_RETURN(pre_proc_args, -1);
+	// MP29526 selects the PMBus page from the rail index, not the platform rail enum
+	uint8_t page = pre_proc_args->vr_page;
+
 	if (cfg->pre_sensor_read_hook) {
 		if (!cfg->pre_sensor_read_hook(cfg, cfg->pre_sensor_read_args)) {
 			LOG_ERR("sensor id: 0x%x pre-read fail", sensor_id);
@@ -1587,49 +1598,49 @@ int get_vr_mp29816a_reg(uint8_t rail, uint16_t *get_data, uint8_t get_reg)
 
 	switch (get_reg) {
 	case UVP:
-		if (!mp29816a_get_uvp(cfg, get_data)) {
-			LOG_ERR("The VR mp29816a uvp threshold setting failed");
+		if (!mp29526_get_uvp(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 uvp threshold setting failed");
 			goto err;
 		}
 		break;
 	case VOUT_MAX:
-		if (!mp29816a_get_vout_max(cfg, rail, get_data)) {
-			LOG_ERR("The VR mp29816a vout max setting failed");
+		if (!mp29526_get_vout_max(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 vout max setting failed");
 			goto err;
 		}
 		break;
 	case VOUT_COMMAND:
-		if (!mp29816a_get_vout_command(cfg, rail, get_data)) {
-			LOG_ERR("The VR mp29816a vout max setting failed");
+		if (!mp29526_get_vout_command(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 vout max setting failed");
 			goto err;
 		}
 		break;
 	case VOUT_OFFSET:
-		if (!mp29816a_get_vout_offset(cfg, get_data)) {
-			LOG_ERR("The VR mp29816a vout offset setting failed");
+		if (!mp29526_get_vout_offset(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 vout offset setting failed");
 			goto err;
 		}
 		break;
 	case TOTAL_OCP:
-		if (!mp29816a_get_total_ocp(cfg, get_data)) {
-			LOG_ERR("The VR mp29816a total ocp setting failed");
+		if (!mp29526_get_total_ocp(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 total ocp setting failed");
 			goto err;
 		}
 		break;
 	case OVP_1:
-		if (!mp29816a_get_ovp_1(cfg, get_data)) {
-			LOG_ERR("The VR mp29816a ovp 1 setting failed");
+		if (!mp29526_get_ovp_1(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 ovp 1 setting failed");
 			goto err;
 		}
 		break;
 	case OVP_2:
-		if (!mp29816a_get_ovp_2(cfg, get_data)) {
-			LOG_ERR("The VR mp29816a ovp 2 setting failed");
+		if (!mp29526_get_ovp_2(cfg, page, get_data)) {
+			LOG_ERR("The VR mp29526 ovp 2 setting failed");
 			goto err;
 		}
 		break;
 	default:
-		LOG_ERR("Unsupport VR mp29816a getting reg (0x%x)", get_reg);
+		LOG_ERR("Unsupport VR mp29526 getting reg (0x%x)", get_reg);
 		goto err;
 	}
 
@@ -1964,9 +1975,9 @@ bool plat_get_get_vout_offset(uint8_t rail, uint16_t *vout_offset)
 	}
 
 	switch (cfg->type) {
-	case sensor_dev_mp29816a:
-		if (!mp29816a_get_vout_offset(cfg, vout_offset)) {
-			LOG_ERR("The VR MPS29816a vout setting failed");
+	case sensor_dev_mp29526:
+		if (!mp29526_get_vout_offset(cfg, get_vr_page(rail), vout_offset)) {
+			LOG_ERR("The VR MPS29526 vout setting failed");
 			goto err;
 		}
 		break;
